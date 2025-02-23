@@ -49,7 +49,7 @@ class MangoHudBackend(BackendBase):
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:
-        output = "/tmp/sc_mangohud" if not is_in_flatpak() else "/var/run/{}/.flatpak/com.core447.StreamController/tmp/sc_mangohud".format(os.getuid())
+        output = "/tmp/sc_mangohud" if not is_in_flatpak() else "/var/run/user/{}/.flatpak/com.core447.StreamController/tmp/sc_mangohud".format(os.getuid())
         return dict(os.environ, **{
             "MANGOHUD_CONFIG": MANGOHUD_CONFIG.format(preset, output)
         })
