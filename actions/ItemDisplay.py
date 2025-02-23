@@ -158,7 +158,3 @@ class ItemDisplay(ActionBase):
             self.set_center_label(text)
         elif location == 2:
             self.set_bottom_label(text)
-
-class ColorRow(Adw.ActionRow):
-    def __init__(self, color : Tuple[int,int,int,int], *args, **kwargs):
-        super().__init__(*args, **kwargs)
