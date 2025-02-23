@@ -1,4 +1,5 @@
 import shutil
+import subprocess
 
 from src.backend.PluginManager.ActionBase import ActionBase
 from src.backend.DeckManagement.DeckController import DeckController
@@ -101,7 +102,11 @@ class LaunchMango(ActionBase):
         if self.program_type == 0: # Steam
             steam_executable = ""
             for steam in ["steam-native", "steam-runtime", "steam", "com.valvesoftware.Steam"]:
-                res = shutil.which(steam)
+                if is_in_flatpak():
+                    res = flatpak_which(steam)
+                else:
+                    res = shutil.which(steam)
+
                 if res is not None:
                     if "com.valvesoftware" in res:
                         steam_executable = f"flatpak run {steam}"
@@ -117,7 +122,10 @@ class LaunchMango(ActionBase):
         elif self.program_type == 1: # Heroic
             heroic_executable = "" #shutil.which("heroic")
             for heroic in ["heroic", "com.heroicgameslauncher.hgl"]:
-                res = shutil.which(heroic)
+                if is_in_flatpak():
+                    res = flatpak_which(heroic)
+                else:
+                    res = shutil.which(heroic)
                 if res is not None:
                     if "com.heroicgameslauncher" in res:
                         heroic_executable = f"flatpak run {heroic}"
@@ -132,3 +140,14 @@ class LaunchMango(ActionBase):
         else: # Custom Command
             cmd = self.custom_command + " " + self.custom_args
             self.backend.launch_mangohud(cmd, self.preset)
+
+def flatpak_which(command) -> str:
+    process = subprocess.Popen(f"flatpak-spawn --host which {command}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    stdout, stderr = process.communicate()
+    if stdout.decode().strip() == "" and stderr.decode().strip().startswith("which: no"):
+        return None
+    else:
+        return stdout.decode().strip()
+
+def is_in_flatpak() -> bool:
+    return os.path.isfile('/.flatpak-info')
