@@ -7,7 +7,7 @@ import os
 import subprocess
 import asyncio
 import multiprocessing
-import json
+import shutil
 
 from loguru import logger as log
 
@@ -66,12 +66,17 @@ class MangoHudBackend(BackendBase):
         flatpak_env = self.get_env(preset)
 
         if "heroic" in command:
-            command = command if not is_in_flatpak() else f"flatpak-spawn --host --env=MANGOHUD_CONFIG={flatpak_env["MANGOHUD_CONFIG"]} {command}"
             proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
         else:
-            command = command if not is_in_flatpak() else f"flatpak-spawn --host --env=MANGOHUD_CONFIG={flatpak_env["MANGOHUD_CONFIG"]} mangohud {command} "
-            proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
+            proc = multiprocessing.Process(target=subprocess.Popen, args=[f"mangohud {command}"], kwargs=kwargs)
         proc.start()
+
+    def find_executable(self, executables : list[str]) -> str:
+        for executable in executables:
+            res = shutil.which(executable)
+            if res is not None:
+                return executable
+        return ""
 
     def on_disconnect(self, conn):
         log.info("Shutting down MangoHud FileSystem Watcher")
@@ -79,8 +84,5 @@ class MangoHudBackend(BackendBase):
             self.log_watchers[log_file].stop_watcher()
         self.fs_watcher.stop_watch()
         super().on_disconnect(conn)
-
-def is_in_flatpak() -> bool:
-    return os.path.isfile('/.flatpak-info')
 
 backend = MangoHudBackend()
