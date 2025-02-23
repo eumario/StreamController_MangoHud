@@ -64,12 +64,13 @@ class MangoHudBackend(BackendBase):
             "stderr": subprocess.DEVNULL,
             "cwd": os.path.expanduser("~")
         }
+        flatpak_env = self.get_env(preset)
 
         if "heroic" in command:
-            command = command if not is_in_flatpak() else f"flatpak-spawn --host {command}"
+            command = command if not is_in_flatpak() else f"flatpak-spawn --host {command} --env=MANGOHUD_CONFIG={flatpak_env["MANGOHUD_CONFIG"]}"
             proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
         else:
-            command = command if not is_in_flatpak() else f"flatpak-spawn --host mangohud {command}"
+            command = command if not is_in_flatpak() else f"flatpak-spawn --host mangohud {command} --env=MANGOHUD_CONFIG={flatpak_env["MANGOHUD_CONFIG"]}"
             proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
         proc.start()
 
