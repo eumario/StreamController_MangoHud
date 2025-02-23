@@ -16,7 +16,7 @@ from log_reader import LogReader
 
 from streamcontroller_plugin_tools import BackendBase
 
-MANGOHUD_CONFIG = "preset={},log_interval=100,autostart_log=1,output_folder=/tmp/sc_mangohud"
+MANGOHUD_CONFIG = "preset={},log_interval=100,autostart_log=1,output_folder={}"
 
 
 class MangoHudBackend(BackendBase):
@@ -49,8 +49,9 @@ class MangoHudBackend(BackendBase):
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:
+        output = "/tmp/sc_mangohud" if not is_in_flatpak() else "/var/run/{}/.flatpak/com.core447.StreamController/tmp/sc_mangohud".format(os.getuid())
         return dict(os.environ, **{
-            "MANGOHUD_CONFIG": MANGOHUD_CONFIG.format(preset)
+            "MANGOHUD_CONFIG": MANGOHUD_CONFIG.format(preset, output)
         })
 
     def launch_mangohud(self, command, preset):
