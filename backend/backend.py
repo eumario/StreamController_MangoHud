@@ -63,10 +63,13 @@ class MangoHudBackend(BackendBase):
             "stderr": subprocess.DEVNULL,
             "cwd": os.path.expanduser("~")
         }
+
         if "heroic" in command:
+            command = command if not is_in_flatpak() else f"flatpak-spawn --host {command}"
             proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
         else:
-            proc = multiprocessing.Process(target=subprocess.Popen, args=[f"mangohud {command}"], kwargs=kwargs)
+            command = command if not is_in_flatpak() else f"flatpak-spawn --host mangohud {command}"
+            proc = multiprocessing.Process(target=subprocess.Popen, args=[command], kwargs=kwargs)
         proc.start()
 
     def on_disconnect(self, conn):
@@ -75,5 +78,8 @@ class MangoHudBackend(BackendBase):
             self.log_watchers[log_file].stop_watcher()
         self.fs_watcher.stop_watch()
         super().on_disconnect(conn)
+
+def is_in_flatpak() -> bool:
+    return os.path.isfile('/.flatpak-info')
 
 backend = MangoHudBackend()
