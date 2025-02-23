@@ -2,18 +2,13 @@ import shutil
 import subprocess
 
 from src.backend.PluginManager.ActionBase import ActionBase
-from src.backend.DeckManagement.DeckController import DeckController
-from src.backend.PageManagement.Page import Page
-from src.backend.PluginManager.PluginBase import PluginBase
 
 import os
-from loguru import logger as log
-
 import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Pango
+from gi.repository import Gtk, Adw
 
 class LaunchMango(ActionBase):
     PROGRAM_TYPE = ["Steam", "Heroic", "Custom Program/Game"]
@@ -100,37 +95,16 @@ class LaunchMango(ActionBase):
 
     def on_key_down(self):
         if self.program_type == 0: # Steam
-            steam_executable = ""
-            for steam in ["steam-native", "steam-runtime", "steam", "com.valvesoftware.Steam"]:
-                if is_in_flatpak():
-                    res = flatpak_which(steam)
-                else:
-                    res = shutil.which(steam)
-
-                if res is not None:
-                    if "com.valvesoftware" in res:
-                        steam_executable = f"flatpak run {steam}"
-                    else:
-                        steam_executable = steam
-                    break
+            steam_executable = self.backend.find_executable(["steam-native", "steam-runtime", "steam", "com.valvesoftware.Steam"])
 
             if steam_executable == "":
                 dlg = Adw.AlertDialog(title="Failed to find Steam", body="Unable to find the Steam Launcher installed on your system.  Please install it.")
                 dlg.show()
                 return
             self.backend.launch_mangohud(steam_executable, self.preset)
+
         elif self.program_type == 1: # Heroic
-            heroic_executable = "" #shutil.which("heroic")
-            for heroic in ["heroic", "com.heroicgameslauncher.hgl"]:
-                if is_in_flatpak():
-                    res = flatpak_which(heroic)
-                else:
-                    res = shutil.which(heroic)
-                if res is not None:
-                    if "com.heroicgameslauncher" in res:
-                        heroic_executable = f"flatpak run {heroic}"
-                    else:
-                        heroic_executable = res
+            heroic_executable = self.backend.find_executable(["heroic","com.heroicgameslauncher.hgl"])
 
             if heroic_executable == "":
                 dlg = Adw.AlertDialog(title="Failed to find Heroic", body="Unable to find the Heroic Games Launcher installed on your system.  Please install it.")
@@ -140,14 +114,3 @@ class LaunchMango(ActionBase):
         else: # Custom Command
             cmd = self.custom_command + " " + self.custom_args
             self.backend.launch_mangohud(cmd, self.preset)
-
-def flatpak_which(command) -> str:
-    process = subprocess.Popen(f"flatpak-spawn --host which {command}", stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    stdout, stderr = process.communicate()
-    if stdout.decode().strip() == "" and stderr.decode().strip().startswith("which: no"):
-        return None
-    else:
-        return stdout.decode().strip()
-
-def is_in_flatpak() -> bool:
-    return os.path.isfile('/.flatpak-info')
