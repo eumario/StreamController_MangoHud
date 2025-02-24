@@ -1,3 +1,4 @@
 watchfiles==0.24.0
 streamcontroller-plugin-tools==2.0.1
 rpyc==6.0.1
+psutil==7.0.0

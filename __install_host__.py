@@ -12,4 +12,4 @@ def create_venv(path: str = ".venv", path_to_requirements_txt: str = None) -> No
     run(f". {join(path, 'bin', 'activate')} && pip install --prefer-binary -r {path_to_requirements_txt}", start_new_session=True, shell=True)
 
 toplevel = dirname(abspath(__file__))
-create_venv(join(toplevel, "backend", ".venv"), join(toplevel, "requirements.txt"))
+create_venv(join(toplevel, "backend", ".venv"), join(toplevel, "backend", "requirements.txt"))

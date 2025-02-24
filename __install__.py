@@ -20,4 +20,4 @@ if isfile("/.flatpak-info"):
                     start_new_session=True,
                     shell=True)
 else:
-    create_venv(join(toplevel, "backend", ".venv"), join(toplevel, "requirements.txt"))
+    create_venv(join(toplevel, "backend", ".venv"), join(toplevel, "backend", "requirements.txt"))
