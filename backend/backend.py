@@ -1,8 +1,3 @@
-## MANGOHUD_CONFIG="autostart_log=2,output_folder=/path/to/folder"  <-- Watch for dynamic generated app logs.
-## mangohud <app>  (Include Steam, and Heroic)
-## mangohud <app>  (For Custom Game Launch)
-# #self.plugin_base.connect_to_event(event_id="dev.eumario.MangoHud::UpdateSync", callback=self.on_update_sync)
-
 import os
 import subprocess
 import asyncio
