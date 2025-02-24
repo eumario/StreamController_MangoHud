@@ -1,6 +1,6 @@
 from venv import create
 from os.path import join, abspath, isfile
-import subprocess
+from subprocess import Popen, run
 from os.path import join, abspath, dirname
 
 def create_venv(path: str = ".venv", path_to_requirements_txt: str = None) -> None:
@@ -15,7 +15,10 @@ def create_venv(path: str = ".venv", path_to_requirements_txt: str = None) -> No
 toplevel = dirname(abspath(__file__))
 if isfile("/.flatpak-info"):
     install_script = join(toplevel, "__install_host__.py")
-    process = subprocess.Popen(f"flatpak-spawn --directory {toplevel} --host python {install_script}")
+    process = Popen(f"flatpak-spawn --directory {toplevel} --host python {install_script}",
+                    cwd=toplevel,
+                    start_new_session=True,
+                    shell=True)
 else:
     create_venv(join(toplevel, "backend", ".venv"), join(toplevel, "requirements.txt"))
 
