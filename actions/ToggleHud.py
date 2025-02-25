@@ -11,4 +11,5 @@ class ToggleHud(ActionBase):
         self.set_center_label("MangoHud")
 
     def on_key_down(self):
-        self.backend.toggle_hud()
+        if not self.backend.toggle_hud():
+            self.show_error(3)

@@ -3,6 +3,7 @@ import os
 import socket
 import sys
 import select
+from os import MFD_ALLOW_SEALING
 from select import EPOLLIN, EPOLLPRI, EPOLLERR
 import time
 from collections import namedtuple
@@ -34,7 +35,7 @@ class Connection:
     def recv(self, timeout):
         '''
         timeout as float in seconds
-        retuirns:
+        returns:
             - None on error or disconnection
             - bytes() (empty) on timeout
         '''
@@ -137,31 +138,35 @@ class MsgParser:
 
         return parsed
 
-def control(socket : str = DEFAULT_SERVER_ADDRESS, logging : bool = False, hud : bool = False):
+def control(socket : str = DEFAULT_SERVER_ADDRESS, logging : bool = False, hud : bool = False) -> bool:
     if socket != DEFAULT_SERVER_ADDRESS:
         address = f"\0{socket}"
     else:
         address = socket
 
-    conn = Connection(address)
-    msgparser = MsgParser(conn)
+    try:
+        conn = Connection(address)
+        msgparser = MsgParser(conn)
 
-    version = None
-    name = None
-    mangohud_version = None
+        version = None
+        name = None
+        mangohud_version = None
 
-    msgs = msgparser.readCmd(3)
+        msgs = msgparser.readCmd(3)
 
-    for m in msgs:
-        cmd, param = m
-        if cmd == VERSION_HEADER:
-            version = int(param)
-        elif cmd == DEVICE_NAME_HEADER:
-            name = param.decode("utf-8")
-        elif cmd == MANGOHUD_VERSION_HEADER:
-            mangohud_version = param.decode("utf-8")
+        for m in msgs:
+            cmd, param = m
+            if cmd == VERSION_HEADER:
+                version = int(param)
+            elif cmd == DEVICE_NAME_HEADER:
+                name = param.decode("utf-8")
+            elif cmd == MANGOHUD_VERSION_HEADER:
+                mangohud_version = param.decode("utf-8")
 
-    if logging:
-        conn.send(bytearray("logging=1;", "utf-8"))
-    elif hud:
-        conn.send(bytearray(":hud;", "utf-8"))
+        if logging:
+            conn.send(bytearray("logging=1;", "utf-8"))
+        elif hud:
+            conn.send(bytearray(":hud;", "utf-8"))
+        return True
+    except ConnectionRefusedError:
+        return False

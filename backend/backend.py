@@ -3,6 +3,7 @@ import subprocess
 import asyncio
 import multiprocessing
 import shutil
+from time import sleep
 
 from loguru import logger as log
 
@@ -60,7 +61,14 @@ class MangoHudBackend(BackendBase):
             watcher.first_read = False
             pid = watcher.proc["pid"]
             self.log_watchers[reader.log_file] = watcher
-            control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True)
+            count = 0;
+            while True:
+                if control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True):
+                    break
+                sleep(0.1)
+                count += 1
+                if count > 50:
+                    break
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:
@@ -93,10 +101,13 @@ class MangoHudBackend(BackendBase):
                 return executable
         return ""
 
-    def toggle_hud(self):
+    def toggle_hud(self) -> bool:
+        result = True
         for watcher in self.log_watchers:
             pid = self.log_watchers[watcher].proc["pid"]
-            control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True)
+            if not control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True):
+                result = False
+        return result
 
 
     def on_disconnect(self, conn):
