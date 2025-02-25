@@ -8,10 +8,23 @@ from loguru import logger as log
 
 from fs_watcher import FsWatcher
 from log_reader import LogReader
+from control import control
 
 from streamcontroller_plugin_tools import BackendBase
 
-MANGOHUD_CONFIG = "preset={},log_interval=100,autostart_log=1,output_folder=/tmp/sc_mangohud"
+MANGOHUD_CONFIG = "preset={},log_interval=100,autostart_log=1,control=/run/user/{}/scmango-%p,output_folder=/tmp/sc_mangohud"
+
+class ReaderStruct:
+    log_file : str
+    log_reader : LogReader
+    proc : dict
+    first_read : bool
+
+    def __init__(self, log_file : str, reader : LogReader, proc : dict):
+        self.log_file = log_file
+        self.log_reader = reader
+        self.proc = proc
+        self.first_read = not proc["existing"]
 
 
 class MangoHudBackend(BackendBase):
@@ -29,23 +42,30 @@ class MangoHudBackend(BackendBase):
 
     def handle_add(self, log_file : str, proc : dict):
         watcher = LogReader(log_file, self.handle_data, proc["existing"])
-        self.log_watchers[log_file] = watcher
+        reader = ReaderStruct(log_file, watcher, proc)
+        self.log_watchers[log_file] = reader
         log.info(f"Starting MangoHud Log watcher for {log_file}")
         asyncio.create_task(watcher.start_watcher())
 
     def handle_remove(self, log_file : str, proc : dict):
         if log_file in self.log_watchers:
-            watcher = self.log_watchers[log_file]
+            reader = self.log_watchers[log_file]
             log.info(f"Stopping MangoHud Log watcher for {log_file}")
-            watcher.stop_watcher()
+            reader.log_reader.stop_watcher()
             del self.log_watchers[log_file]
 
-    def handle_data(self, entry : dict):
+    def handle_data(self, reader : LogReader, entry : dict):
+        if self.log_watchers[reader.log_file].first_read:
+            watcher = self.log_watchers[reader.log_file]
+            watcher.first_read = False
+            pid = watcher.proc["pid"]
+            self.log_watchers[reader.log_file] = watcher
+            control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True)
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:
         return dict(os.environ, **{
-            "MANGOHUD_CONFIG": MANGOHUD_CONFIG.format(preset)
+            "MANGOHUD_CONFIG": MANGOHUD_CONFIG.format(preset, os.getuid())
         })
 
     def launch_mangohud(self, command, preset):
@@ -72,6 +92,12 @@ class MangoHudBackend(BackendBase):
             if res is not None:
                 return executable
         return ""
+
+    def toggle_hud(self):
+        for watcher in self.log_watchers:
+            pid = self.log_watchers[watcher].proc["pid"]
+            control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True)
+
 
     def on_disconnect(self, conn):
         log.info("Shutting down MangoHud FileSystem Watcher")

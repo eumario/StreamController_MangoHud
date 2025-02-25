@@ -12,6 +12,7 @@ from loguru import logger as log
 # Import Actions
 from .actions.ItemDisplay import ItemDisplay
 from .actions.LaunchMango import LaunchMango
+from .actions.ToggleHud import ToggleHud
 
 class PluginMangoHud(PluginBase):
     def __init__(self):
@@ -42,6 +43,14 @@ class PluginMangoHud(PluginBase):
             action_name="Launch App with MangoHud"
         )
         self.add_action_holder(self.launch_mango_holder)
+
+        self.toggle_mangohud_holder = ActionHolder(
+            plugin_base=self,
+            action_base=ToggleHud,
+            action_id="dev_eumario_MangoHud::ToggleHud",
+            action_name="Toggle MangoHUD"
+        )
+        self.add_action_holder(self.toggle_mangohud_holder)
 
         # Register Events
         self.update_sync_event_holder = EventHolder(

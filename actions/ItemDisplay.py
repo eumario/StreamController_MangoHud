@@ -1,3 +1,4 @@
+import time
 from typing import Tuple
 from datetime import timedelta
 
@@ -13,11 +14,11 @@ import gi
 
 gi.require_version("Gtk", "4.0")
 gi.require_version("Adw", "1")
-from gi.repository import Gtk, Adw, Pango
+from gi.repository import Gtk, Adw, Pango, GLib
 
 class ItemDisplay(ActionBase):
     STAT_ITEMS = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,elapsed".split(",")
-    DEFAULT_LABELS = ["FPS","Frame Time", "CPU Load", "CPU Power", "GPU Load", "CPU Temp", "GPU Temp", "GPU Clock", "VRAM Clock", "VRAM Used", "GPU Power", "RAM Used", "Swap Used", "RSS Used", "Elapsed"]
+    DEFAULT_LABELS = ["FPS","FrameTime", "CPU Load", "CPU Power", "GPU Load", "CPU Temp", "GPU Temp", "GPU Clock", "VRAM Clock", "VRAM Used", "GPU Power", "RAM Used", "Swap Used", "RSS Used", "Elapsed"]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.backend = self.plugin_base.backend
@@ -29,6 +30,9 @@ class ItemDisplay(ActionBase):
         self.label_location = 0
         self.label_text = ""
         self.stat_location = 1
+        self.first_data_sync = True
+        self.timeout = 0
+        self.last_updated = 0
 
     def on_ready(self):
         self.load_config_values(False)
@@ -36,6 +40,10 @@ class ItemDisplay(ActionBase):
         return super().on_ready()
 
     def on_data_sync(self, _signal : str, data : dict):
+        if self.first_data_sync:
+            self.first_data_sync = False
+            GLib.timeout_add(1000,self.handle_timer)
+        self.last_updated = time.time()
         field = self.field
         value = data[field]
         loc = self.stat_location
@@ -43,16 +51,28 @@ class ItemDisplay(ActionBase):
 
         self.update_text(loc, label)
 
+    def handle_timer(self):
+        if time.time() - self.last_updated > 5:
+            self.update_text(self.stat_location, "")
+            self.first_data_sync = True
+            return False
+        return True
+
     def get_formatted_string(self, field, value):
         if field in ["fps"]:
-            value = int(f"{value}".split(".")[0])
-            return f"{value}"
+            i = int(value)
+            return f"{i}"
         elif field in ["frametime"]:
-            return f"{round(value,1):.1f}ms"
-        elif field in ["cpu_load", "gpu_vram_used", "ram_used", "swap_used"]:
-            return f"{round(value,2):.2}%"
-        elif field in ["gpu_load", "gpu_power"]:
-            return f"{value}%"
+            return f"{value:.1f}ms"
+        elif field in ["cpu_load", "gpu_load"]:
+            if type(value) == float:
+                return f"{value:.2f}%"
+            else:
+                return f"{value}%"
+        elif field in ["gpu_vram_used", "ram_used", "swap_used"]:
+            return f"{value:.1f}GB"
+        elif field in ["cpu_power", "gpu_power"]:
+            return f"{value}W"
         elif field in ["cpu_temp", "gpu_temp"]:
             return f"{value}\u00B0C"
         elif field in ["gpu_core_clock", "gpu_mem_clock"]:

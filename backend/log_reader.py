@@ -48,7 +48,7 @@ class LogReader:
                             data[key] = float(parts[i])
                         else:
                             data[key] = int(parts[i])
-                    self.data_callback(data)
+                    self.data_callback(self, data)
 
     def stop_watcher(self):
         log.info(f"Stopping LogWatcher for {self.log_file}")
