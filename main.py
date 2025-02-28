@@ -9,6 +9,12 @@ import os
 import subprocess
 from loguru import logger as log
 
+import gi
+
+gi.require_version("Gtk", "4.0")
+gi.require_version("Adw", "1")
+from gi.repository import Gtk, Adw, Pango, GLib
+
 # Import Actions
 from .actions.ItemDisplay import ItemDisplay
 from .actions.LaunchMango import LaunchMango
@@ -66,6 +72,17 @@ class PluginMangoHud(PluginBase):
             plugin_version = "0.1.0",
             app_version = "1.5.0-beta6"
         )
+
+    def get_settings_area(self):
+        settings = self.get_settings()
+        self.autohide_hud_control : Adw.SwitchRow = Adw.SwitchRow(title="Auto-Hide MangoHUD UI Overlay", Active=settings["autohide_hud"])
+        self.autohide_hud_control.connect("notify::active", self.on_autohide_hud)
+        return [self.autohide_hud_control]
+
+    def on_autohide_hud(self, *args):
+        settings = self.get_settings()
+        settings["autohide_hud"] = self.autohide_hud_control.get_active()
+        self.set_settings(settings)
 
     def flatpak_launch_backend(self, backend_path: str, backend_dir: str, venv_path: str = None, open_in_terminal: bool = False) -> None:
         self.start_server()

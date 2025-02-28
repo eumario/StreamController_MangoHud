@@ -29,6 +29,7 @@ class ReaderStruct:
 
 
 class MangoHudBackend(BackendBase):
+    autohide_hud : bool = True
 
     def __init__(self):
         super().__init__()
@@ -38,6 +39,10 @@ class MangoHudBackend(BackendBase):
         self.log_watchers = {}
 
         log.info("Starting up MangoHud FileSystem watcher.")
+
+        settings = self.frontend.get_settings()
+
+        self.autohide_hud = settings["autohide_hud"]
 
         asyncio.run(self.fs_watcher.start_watch())
 
@@ -56,7 +61,7 @@ class MangoHudBackend(BackendBase):
             del self.log_watchers[log_file]
 
     def handle_data(self, reader : LogReader, entry : dict):
-        if self.log_watchers[reader.log_file].first_read:
+        if self.log_watchers[reader.log_file].first_read and self.autohide_hud:
             watcher = self.log_watchers[reader.log_file]
             watcher.first_read = False
             pid = watcher.proc["pid"]
