@@ -42,7 +42,7 @@ class MangoHudBackend(BackendBase):
 
         settings = self.frontend.get_settings()
 
-        self.autohide_hud = settings["autohide_hud"]
+        self.autohide_hud = settings.get("autohide_hud", True)
 
         asyncio.run(self.fs_watcher.start_watch())
 

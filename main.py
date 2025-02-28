@@ -34,7 +34,7 @@ class PluginMangoHud(PluginBase):
             self.launch_backend(backend_path=backend_path, open_in_terminal=False, venv_path=os.path.join(self.PATH, "backend", ".venv"))
         self.wait_for_backend(5)
 
-        with open("manifest.json", "r") as f:
+        with open(os.path.join(self.PATH, "manifest.json"), "r") as f:
             manifest = json.load(f)
 
         # Register Actions
@@ -80,7 +80,7 @@ class PluginMangoHud(PluginBase):
     def get_settings_area(self):
         settings = self.get_settings()
         group = Adw.PreferencesGroup(title="Hud Settings")
-        self.autohide_hud_control : Adw.SwitchRow = Adw.SwitchRow(title="Auto-Hide MangoHUD UI Overlay", Active=settings["autohide_hud"])
+        self.autohide_hud_control : Adw.SwitchRow = Adw.SwitchRow(title="Auto-Hide MangoHUD UI Overlay", active=settings.get("autohide_hud", True))
         group.add(self.autohide_hud_control)
         self.autohide_hud_control.connect("notify::active", self.on_autohide_hud)
         return group
