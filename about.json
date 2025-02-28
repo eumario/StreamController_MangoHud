@@ -1,0 +1,15 @@
+{
+  "author": "Mario Steele",
+  "release-notes": {
+      "path": "release_notes.notes",
+      "version": "0.1.2"
+  },
+  "credits": {
+    "Main": [
+        "TheGreenOne",
+        "Daisuke88",
+        "GAPLS",
+        "ImDevinC"
+    ]
+  }
+}
