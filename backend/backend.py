@@ -29,8 +29,6 @@ class ReaderStruct:
 
 
 class MangoHudBackend(BackendBase):
-    autohide_hud : bool = True
-
     def __init__(self):
         super().__init__()
         if not os.path.isdir("/tmp/sc_mangohud"):
@@ -40,9 +38,6 @@ class MangoHudBackend(BackendBase):
 
         log.info("Starting up MangoHud FileSystem watcher.")
 
-        settings = self.frontend.get_settings()
-
-        self.autohide_hud = settings.get("autohide_hud", True)
 
         asyncio.run(self.fs_watcher.start_watch())
 
@@ -61,19 +56,22 @@ class MangoHudBackend(BackendBase):
             del self.log_watchers[log_file]
 
     def handle_data(self, reader : LogReader, entry : dict):
-        if self.log_watchers[reader.log_file].first_read and self.autohide_hud:
+        if self.log_watchers[reader.log_file].first_read:
+            settings = self.frontend.get_settings()
             watcher = self.log_watchers[reader.log_file]
             watcher.first_read = False
             pid = watcher.proc["pid"]
             self.log_watchers[reader.log_file] = watcher
             count = 0;
-            while True:
-                if control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True):
-                    break
-                sleep(0.1)
-                count += 1
-                if count > 50:
-                    break
+            if settings.get("autohide_hud", True):
+                while True:
+                    if control(socket=f"/run/user/{os.getuid()}/scmango-{pid}", hud=True):
+                        break
+                    sleep(0.1)
+                    count += 1
+                    if count > 50:
+                        break
+            
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:
