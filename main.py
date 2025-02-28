@@ -7,6 +7,7 @@ from src.backend.PluginManager.ActionHolder import ActionHolder
 
 import os
 import subprocess
+import json
 from loguru import logger as log
 
 import gi
@@ -33,11 +34,14 @@ class PluginMangoHud(PluginBase):
             self.launch_backend(backend_path=backend_path, open_in_terminal=False, venv_path=os.path.join(self.PATH, "backend", ".venv"))
         self.wait_for_backend(5)
 
+        with open("manifest.json", "r") as f:
+            manifest = json.load(f)
+
         # Register Actions
         self.item_display_holder = ActionHolder(
             plugin_base=self,
             action_base=ItemDisplay,
-            action_id="dev_eumario_MangoHud::ItemDisplay",
+            action_id=f"{manifest["id"]}::ItemDisplay",
             action_name="Display MangoHud Stat"
         )
         self.add_action_holder(self.item_display_holder)
@@ -45,7 +49,7 @@ class PluginMangoHud(PluginBase):
         self.launch_mango_holder = ActionHolder(
             plugin_base=self,
             action_base=LaunchMango,
-            action_id="dev_eumario_MangoHud::LaunchMango",
+            action_id=f"{manifest["id"]}::LaunchMango",
             action_name="Launch App with MangoHud"
         )
         self.add_action_holder(self.launch_mango_holder)
@@ -53,24 +57,24 @@ class PluginMangoHud(PluginBase):
         self.toggle_mangohud_holder = ActionHolder(
             plugin_base=self,
             action_base=ToggleHud,
-            action_id="dev_eumario_MangoHud::ToggleHud",
+            action_id=f"{manifest["id"]}::ToggleHud",
             action_name="Toggle MangoHUD"
         )
         self.add_action_holder(self.toggle_mangohud_holder)
 
         # Register Events
         self.update_sync_event_holder = EventHolder(
-            event_id = "dev_eumario_MangoHud::UpdateSync",
+            event_id = f"{manifest["id"]}::UpdateSync",
             plugin_base = self
         )
         self.add_event_holder(self.update_sync_event_holder)
 
         # Register Plugin
         self.register(
-            plugin_name = "MangoHud Buttons",
-            github_repo = "https://github.com/eumario/StreamController_MangoHud",
-            plugin_version = "0.1.0",
-            app_version = "1.5.0-beta6"
+            plugin_name = manifest["name"],
+            github_repo = manifest["github"],
+            plugin_version = manifest["version"],
+            app_version = manifest["app-version"]
         )
 
     def get_settings_area(self):
