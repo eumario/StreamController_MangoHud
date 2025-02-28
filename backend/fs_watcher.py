@@ -81,6 +81,9 @@ class FsWatcher:
             else:
                 for change_type, file_path in changes:
                     if change_type == Change.added:
+                        if file_path.endswith("_summary.csv"):
+                            log.info("File is a Summary, not a Stat Log, continuing.")
+                            continue
                         proc = self.get_process(file_path)
                         self.add_watcher(file_path, proc)
                     elif change_type == Change.modified:
