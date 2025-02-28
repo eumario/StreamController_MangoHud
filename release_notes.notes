@@ -1,7 +1,8 @@
-v0.1.1
-
-* Added Exception catch when attempting to connect to control socket, return true or false instead of crashing backend.
-* Added ignore for _summary.csv log files, as they do not report anything of interest
-* Added Auto-Hide MangoHUD Option to new Plugin Settings dialog
-* Added About json file.
-* Added Release notes.
+<h2>v0.1.1</h2>
+<ul>
+	<li>Added Exception catch when attempting to connect to control socket, return true or false instead of crashing backend.</li>
+	<li>Added ignore for _summary.csv log files, as they do not report anything of interest</li>
+	<li>Added Auto-Hide MangoHUD Option to new Plugin Settings dialog</li>
+	<li>Added About json file.</li>
+	<li>Added Release notes.</li>
+</ul>

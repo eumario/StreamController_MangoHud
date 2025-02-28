@@ -75,9 +75,11 @@ class PluginMangoHud(PluginBase):
 
     def get_settings_area(self):
         settings = self.get_settings()
+        group = Adw.PreferencesGroup(title="Hud Settings")
         self.autohide_hud_control : Adw.SwitchRow = Adw.SwitchRow(title="Auto-Hide MangoHUD UI Overlay", Active=settings["autohide_hud"])
+        group.add(self.autohide_hud_control)
         self.autohide_hud_control.connect("notify::active", self.on_autohide_hud)
-        return [self.autohide_hud_control]
+        return group
 
     def on_autohide_hud(self, *args):
         settings = self.get_settings()
