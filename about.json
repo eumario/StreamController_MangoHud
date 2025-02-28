@@ -1,5 +1,6 @@
 {
   "author": "Mario Steele",
+  "icon": "store/icon.png",
   "release-notes": {
       "path": "release_notes.notes",
       "version": "0.1.2"
