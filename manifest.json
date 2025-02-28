@@ -1,5 +1,5 @@
 {
-    "version": "0.1.0",
+    "version": "0.1.1",
     "thumbnail": "store/thumbnail.png",
     "id": "dev_eumario_MangoHud",
     "name": "MangoHud Integration",
@@ -11,8 +11,8 @@
         "indicators",
         "fps"
     ],
-    "minimum-app-version": "1.5.0-beta.7",
-    "app-version": "1.5.0-beta.7",
+    "minimum-app-version": "1.5.0-beta.8",
+    "app-version": "1.5.0-beta.8",
     "description": "Creates Buttons to show FPS, GPU Stats and more from Game Perspective.",
     "short-description": "Stat Indicator buttons for MangoHud."
 }
