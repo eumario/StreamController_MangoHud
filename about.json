@@ -3,7 +3,7 @@
   "icon": "store/icon.png",
   "release-notes": {
       "path": "release_notes.notes",
-      "version": "0.1.2"
+      "version": "0.1.1"
   },
   "credits": {
     "Main": [

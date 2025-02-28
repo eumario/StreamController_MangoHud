@@ -1,4 +1,3 @@
-<p>v0.1.1</p>
 <ul>
 	<li>Added Exception catch when attempting to connect to control socket, return true or false instead of crashing backend.</li>
 	<li>Added ignore for _summary.csv log files, as they do not report anything of interest</li>
