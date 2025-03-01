@@ -71,7 +71,7 @@ class MangoHudBackend(BackendBase):
                     count += 1
                     if count > 50:
                         break
-            
+
         self.frontend.update_sync_event_holder.trigger_event(entry)
 
     def get_env(self, preset) -> dict:

@@ -1,6 +1,8 @@
 # Import StreamController modules
 import shutil
 
+from src.backend.DeckManagement.InputIdentifier import Input
+from src.backend.PluginManager.ActionInputSupport import ActionInputSupport
 from src.backend.PluginManager.PluginBase import PluginBase
 from src.backend.PluginManager.EventHolder import EventHolder
 from src.backend.PluginManager.ActionHolder import ActionHolder
@@ -42,7 +44,12 @@ class PluginMangoHud(PluginBase):
             plugin_base=self,
             action_base=ItemDisplay,
             action_id=f"{manifest["id"]}::ItemDisplay",
-            action_name="Display MangoHud Stat"
+            action_name="Display MangoHud Stat",
+            action_support={
+                Input.Key: ActionInputSupport.SUPPORTED,
+                Input.Dial: ActionInputSupport.UNTESTED,
+                Input.Touchscreen: ActionInputSupport.UNTESTED
+            }
         )
         self.add_action_holder(self.item_display_holder)
 
@@ -50,7 +57,12 @@ class PluginMangoHud(PluginBase):
             plugin_base=self,
             action_base=LaunchMango,
             action_id=f"{manifest["id"]}::LaunchMango",
-            action_name="Launch App with MangoHud"
+            action_name="Launch App with MangoHud",
+            action_support={
+                Input.Key: ActionInputSupport.SUPPORTED,
+                Input.Dial: ActionInputSupport.UNTESTED,
+                Input.Touchscreen: ActionInputSupport.UNTESTED
+            }
         )
         self.add_action_holder(self.launch_mango_holder)
 
@@ -58,7 +70,12 @@ class PluginMangoHud(PluginBase):
             plugin_base=self,
             action_base=ToggleHud,
             action_id=f"{manifest["id"]}::ToggleHud",
-            action_name="Toggle MangoHUD"
+            action_name="Toggle MangoHUD",
+            action_support={
+                Input.Key: ActionInputSupport.SUPPORTED,
+                Input.Dial: ActionInputSupport.UNTESTED,
+                Input.Touchscreen: ActionInputSupport.UNTESTED
+            }
         )
         self.add_action_holder(self.toggle_mangohud_holder)
 
