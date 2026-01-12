@@ -3,8 +3,10 @@ from io import TextIOWrapper
 from loguru import logger as log
 
 class LogReader:
-    END_OF_HEADER = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,elapsed"
-    KEYS = END_OF_HEADER.split(",")
+    END_OF_HEADER_OLD = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,elapsed"
+    END_OF_HEADER_NEW = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,cpu_mhz,elapsed"
+
+    KEYS = END_OF_HEADER_OLD.split(",")
     def __init__(self, log_file, data_callback, existing = False):
         self.log_file : str = log_file
         self.data_callback = data_callback
@@ -33,9 +35,13 @@ class LogReader:
             generator = self.follower(fh)
             while not self.fut.cancelled():
                 line = await anext(generator)
-                if self.END_OF_HEADER in line:
+                if self.END_OF_HEADER_OLD in line or self.END_OF_HEADER_NEW in line:
                     log.info("We found header, moving to reading for next line.")
                     self.header_found = True
+                    if self.END_OF_HEADER_OLD in line:
+                        self.KEYS = self.END_OF_HEADER_OLD.split(",")
+                    else:
+                        self.KEYS = self.END_OF_HEADER_NEW.split(",")
                     continue
                 if self.header_found:
                     data = {}
