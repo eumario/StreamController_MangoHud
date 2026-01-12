@@ -17,8 +17,8 @@ gi.require_version("Adw", "1")
 from gi.repository import Gtk, Adw, Pango, GLib
 
 class ItemDisplay(ActionBase):
-    STAT_ITEMS = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,elapsed".split(",")
-    DEFAULT_LABELS = ["FPS","FrameTime", "CPU Load", "CPU Power", "GPU Load", "CPU Temp", "GPU Temp", "GPU Clock", "VRAM Clock", "VRAM Used", "GPU Power", "RAM Used", "Swap Used", "RSS Used", "Elapsed"]
+    STAT_ITEMS = "fps,frametime,cpu_load,cpu_power,gpu_load,cpu_temp,gpu_temp,gpu_core_clock,gpu_mem_clock,gpu_vram_used,gpu_power,ram_used,swap_used,process_rss,cpu_mhz,elapsed".split(",")
+    DEFAULT_LABELS = ["FPS","FrameTime", "CPU Load", "CPU Power", "GPU Load", "CPU Temp", "GPU Temp", "GPU Clock", "VRAM Clock", "VRAM Used", "GPU Power", "RAM Used", "Swap Used", "RSS Used", "CPU GHz", "Elapsed"]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.backend = self.plugin_base.backend
@@ -77,6 +77,9 @@ class ItemDisplay(ActionBase):
             return f"{value}\u00B0C"
         elif field in ["gpu_core_clock", "gpu_mem_clock"]:
             return f"{value}MHz"
+        elif field in ["cpu_mhz"]:
+            ghz = value / 1000
+            return f"{ghz:.2f}GHz"
         elif field in ["elapsed"]:
             seconds = value / 1_000_000_000
             return str(timedelta(seconds=int(seconds)))
