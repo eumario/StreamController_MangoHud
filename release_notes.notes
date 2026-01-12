@@ -1,4 +1,6 @@
 <ul>
+	<li>Added new option to Item Display, for CPU GHz.</li>
+	<li>Updated LogReader to handle both old format, and new format for MangoHud CSV headers.</li>
 	<li>Added Exception catch when attempting to connect to control socket, return true or false instead of crashing backend.</li>
 	<li>Added ignore for _summary.csv log files, as they do not report anything of interest</li>
 	<li>Added Auto-Hide MangoHUD Option to new Plugin Settings dialog</li>

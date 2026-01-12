@@ -57,3 +57,8 @@ handled by the plugin.
 - **Q:** **I launched an app with mangohud, and have the proper environment variables, but my buttons are not updating to show the stats?**\
   **A:** If you use the option no_display, or preset=0 in the configuration of MangoHUD, the HUD will not display, and logging doesn't \
   start, till the hud properly displays on the screen.
+- **Q:** **I'm not getting any response from any of the buttons I created, what is going wrong?**\
+  **A:** In order to read the log files of MangoHud, we use the system's python interpreter.  Recently, Python was updated to 3.14.  If you
+  type in a terminal `python --version` and it doesn't show `Python 3.13.11` as the latest possible version, then there may be issues installing
+  the latest version of the Python Libraries WatchFiles or some other library, that hasn't been updated to work with 3.14 yet.  You can downgrade
+  Python back to 3.13, or wait for Python Libraries to be updated.
